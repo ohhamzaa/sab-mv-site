@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0703">
+<title>SAB Market Value — Accurate values, live exist counts, real trade checks</title>
+<meta name="description" content="The home of accurate Steal a Brainrot values. Live brainrot, mutation, gear & base skin prices, a real-time exist-count bot, and instant trade Win/Fair/Loss checks. Powered by Sab Market Value Bot.">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="SAB Market Value — Steal a Brainrot Values & Exist Counts">
+<meta property="og:description" content="469 brainrots tracked · live exist-count bot · 24/7 accuracy · 10k+ traders.">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0703; --bg2:#16100a; --card:#1c130b; --line:rgba(245,158,11,.18);
+    --ink:#fff5e3; --mut:#c4a374; --mut2:#8a6a3e;
+    --orange:#f59e0b; --orange2:#f97316; --gold:#fbbf24; --gold2:#fcd34d;
+    --shadow:0 8px 40px -8px rgba(249,115,22,.4);
+  }
+  *,:before,:after{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--bg); color:var(--ink); font:16px/1.55 Inter,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; min-height:100vh; overflow-x:hidden; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background:var(--orange); color:#fff; }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#3a2a14; border-radius:4px; }
+  ::-webkit-scrollbar-thumb:hover{ background:var(--orange2); }
+
+  /* ── Decorative background glows ── */
+  .glow{ position:fixed; pointer-events:none; border-radius:50%; filter:blur(120px); opacity:.35; z-index:0; }
+  .glow.a{ top:-20%; left:-10%; width:600px; height:600px;
+    background:radial-gradient(circle, #f59e0b 0%, transparent 60%); }
+  .glow.b{ top:30%; right:-15%; width:700px; height:700px;
+    background:radial-gradient(circle, #f97316 0%, transparent 60%); opacity:.25; }
+  .glow.c{ bottom:-20%; left:30%; width:800px; height:800px;
+    background:radial-gradient(circle, #fbbf24 0%, transparent 65%); opacity:.18; }
+
+  /* ── Nav ── */
+  nav{ position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:rgba(11,7,3,.7); border-bottom:1px solid var(--line); }
+  .nav-in{ max-width:1200px; margin:0 auto; padding:14px 24px; display:flex; align-items:center; gap:18px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px; letter-spacing:-.02em; }
+  .brand-mark{ width:30px; height:30px; border-radius:8px; display:grid; place-items:center;
+    background:linear-gradient(135deg, var(--orange), var(--gold)); color:#1a0f04; font-weight:900; font-size:13px; box-shadow:0 0 18px -4px var(--orange); }
+  .brand-name{ background:linear-gradient(90deg, var(--gold2), var(--orange)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .nav-links{ margin-left:auto; display:flex; gap:24px; align-items:center; font-size:14px; color:var(--mut); }
+  .nav-links a{ transition:color .15s; }
+  .nav-links a:hover{ color:var(--gold2); }
+  .nav-cta{ background:linear-gradient(90deg, var(--orange), var(--gold)); color:#1a0f04 !important;
+    padding:8px 18px; border-radius:8px; font-weight:700; box-shadow:var(--shadow); transition:transform .15s; }
+  .nav-cta:hover{ transform:translateY(-1px); }
+  @media (max-width:720px){ .nav-links a:not(.nav-cta){ display:none; } }
+
+  /* ── Layout ── */
+  section{ position:relative; z-index:1; padding:90px 24px; }
+  .wrap{ max-width:1200px; margin:0 auto; }
+  h1,h2,h3{ letter-spacing:-.02em; line-height:1.1; font-weight:900; }
+  h2{ font-size:clamp(28px,4vw,42px); margin-bottom:12px; }
+  .lead{ color:var(--mut); font-size:17px; max-width:640px; }
+  .grad-text{ background:linear-gradient(90deg, var(--gold2), var(--orange)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  /* ── Hero ── */
+  .hero{ padding:120px 24px 80px; text-align:center; }
+  .hero h1{ font-size:clamp(40px,7vw,78px); margin:0 auto 24px; max-width:900px; }
+  .hero p.lead{ margin:0 auto 36px; font-size:clamp(16px,2vw,19px); }
+  .hero-pill{ display:inline-flex; align-items:center; gap:8px; padding:6px 14px;
+    background:rgba(245,158,11,.12); border:1px solid rgba(245,158,11,.4); border-radius:999px;
+    font-size:13px; color:var(--gold2); margin-bottom:24px; font-weight:600; }
+  .hero-pill .dot{ width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981; animation:pulse 2s infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.5; } }
+  .hero-cta{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .btn{ padding:14px 28px; border-radius:10px; font-weight:700; font-size:15px;
+    transition:transform .15s, box-shadow .15s; display:inline-flex; align-items:center; gap:8px; border:0; cursor:pointer; }
+  .btn.primary{ background:linear-gradient(90deg, var(--orange), var(--gold)); color:#1a0f04; box-shadow:var(--shadow); }
+  .btn.primary:hover{ transform:translateY(-2px); box-shadow:0 12px 50px -8px rgba(249,115,22,.6); }
+  .btn.ghost{ background:rgba(255,245,227,.06); border:1px solid var(--line); color:var(--ink); }
+  .btn.ghost:hover{ border-color:var(--gold); background:rgba(245,158,11,.1); }
+
+  /* ── Stats ── */
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:16px; max-width:1000px; margin:60px auto 0; }
+  .stat{ background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:24px 20px; text-align:center; transition:transform .15s, border-color .15s; }
+  .stat:hover{ transform:translateY(-3px); border-color:var(--gold); }
+  .stat .v{ font-size:32px; font-weight:900; background:linear-gradient(90deg, var(--gold2), var(--orange));
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .stat .l{ color:var(--mut); font-size:12px; text-transform:uppercase; letter-spacing:.08em; margin-top:4px; font-weight:600; }
+
+  /* ── Features ── */
+  .features{ display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px; margin-top:48px; }
+  .feat{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:28px; transition:border-color .15s, transform .15s; }
+  .feat:hover{ border-color:var(--orange); transform:translateY(-3px); }
+  .feat-ico{ width:48px; height:48px; border-radius:12px; display:grid; place-items:center; font-size:24px;
+    background:linear-gradient(135deg, rgba(245,158,11,.2), rgba(251,191,36,.1));
+    border:1px solid rgba(245,158,11,.3); margin-bottom:18px; }
+  .feat h3{ font-size:19px; margin-bottom:8px; }
+  .feat p{ color:var(--mut); font-size:14.5px; }
+
+  /* ── Showcase (what we track) ── */
+  .showcase{ background:var(--bg2); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .tracks{ display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-top:36px; }
+  .track{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px;
+    display:flex; align-items:center; gap:14px; transition:border-color .15s; }
+  .track:hover{ border-color:var(--gold); }
+  .track-num{ font-size:28px; font-weight:900; background:linear-gradient(135deg, var(--gold), var(--orange));
+    -webkit-background-clip:text; background-clip:text; color:transparent; min-width:50px; }
+  .track-l{ color:var(--ink); font-weight:600; }
+  .track-s{ color:var(--mut); font-size:12.5px; }
+
+  /* ── CTA section ── */
+  .cta-band{ text-align:center; padding:80px 24px;
+    background:radial-gradient(circle at 50% 50%, rgba(245,158,11,.15) 0%, transparent 70%); }
+  .cta-band h2{ font-size:clamp(28px,4vw,42px); margin-bottom:14px; }
+  .cta-band p{ color:var(--mut); margin-bottom:28px; max-width:540px; margin-left:auto; margin-right:auto; }
+
+  /* ── Footer ── */
+  footer{ border-top:1px solid var(--line); padding:40px 24px 60px; background:var(--bg2); position:relative; z-index:1; }
+  .foot-in{ max-width:1200px; margin:0 auto; display:flex; flex-wrap:wrap; gap:24px;
+    justify-content:space-between; align-items:center; color:var(--mut); font-size:13.5px; }
+  .foot-links{ display:flex; gap:20px; flex-wrap:wrap; }
+  .foot-links a:hover{ color:var(--gold2); }
+
+  /* Fade-in animation */
+  .fade{ opacity:0; transform:translateY(20px); transition:opacity .8s, transform .8s; }
+  .fade.in{ opacity:1; transform:none; }
+</style>
+</head>
+<body>
+
+<div class="glow a"></div><div class="glow b"></div><div class="glow c"></div>
+
+<nav>
+  <div class="nav-in">
+    <a href="#" class="brand">
+      <span class="brand-mark">SMV</span>
+      <span class="brand-name">SAB Market Value</span>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#stats">Stats</a>
+      <a href="#tracks">What we track</a>
+      <a class="nav-cta" href="DISCORD_INVITE_HERE" target="_blank" rel="noopener">Join Discord</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ─────────── HERO ─────────── -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-pill"><span class="dot"></span>LIVE · 24/7 · OFFICIAL</div>
+    <h1>The home of <span class="grad-text">accurate</span> Steal a Brainrot values.</h1>
+    <p class="lead">Real prices for every brainrot, mutation, gear & base skin. A live exist-count bot. Instant Win/Fair/Loss trade checks. All in one server, kept up to date around the clock.</p>
+    <div class="hero-cta">
+      <a class="btn primary" href="DISCORD_INVITE_HERE" target="_blank" rel="noopener">🚀 Join the Discord</a>
+      <a class="btn ghost" href="#features">See what we offer →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── STATS ─────────── -->
+<section id="stats" style="padding-top:0">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat fade"><div class="v">10K+</div><div class="l">👑 Members</div></div>
+      <div class="stat fade"><div class="v">469</div><div class="l">🏷️ Values Tracked</div></div>
+      <div class="stat fade"><div class="v">✓</div><div class="l">📡 Live Exist Bot</div></div>
+      <div class="stat fade"><div class="v">24/7</div><div class="l">🤖 Live Updates</div></div>
+      <div class="stat fade"><div class="v">#1</div><div class="l">🥇 Accurate Values</div></div>
+      <div class="stat fade"><div class="v">#1</div><div class="l">💎 SAB Value Hub</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── FEATURES ─────────── -->
+<section id="features">
+  <div class="wrap">
+    <h2>Everything you need to trade <span class="grad-text">smart</span>.</h2>
+    <p class="lead">No guesswork, no stale spreadsheets. Real values updated by real staff, served by our custom bot.</p>
+    <div class="features">
+
+      <div class="feat fade">
+        <div class="feat-ico">🏷️</div>
+        <h3>Real, current values</h3>
+        <p>Every brainrot, every mutation, every gear & base skin — priced by verified staff and updated daily. Look up any combo with a single command.</p>
+      </div>
+
+      <div class="feat fade">
+        <div class="feat-ico">📡</div>
+        <h3>Live exist-count bot</h3>
+        <p>See how many of any brainrot exist in real time. Know what's actually rare before you trade — not what someone tells you.</p>
+      </div>
+
+      <div class="feat fade">
+        <div class="feat-ico">🔄</div>
+        <h3>Trade Win/Fair/Loss checks</h3>
+        <p>Submit any trade and get an instant W/F/L verdict based on current values. Includes mutations, traits, and exact combo pricing.</p>
+      </div>
+
+      <div class="feat fade">
+        <div class="feat-ico">📈</div>
+        <h3>Income & demand tracking</h3>
+        <p>Real $/s, demand ratings, and obtainability for every item — so you know what's worth chasing and what's about to drop.</p>
+      </div>
+
+      <div class="feat fade">
+        <div class="feat-ico">🛡️</div>
+        <h3>Verified staff & approved sales</h3>
+        <p>Every submitted sale and trade is reviewed before it moves the market. No scam wash trades, no fake hype prices.</p>
+      </div>
+
+      <div class="feat fade">
+        <div class="feat-ico">🧤</div>
+        <h3>Gears & base skins</h3>
+        <p>Not just brainrots — full price tracking for slaps, hammers, base skins and other cosmetics, with their own dedicated commands.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── SHOWCASE ─────────── -->
+<section id="tracks" class="showcase">
+  <div class="wrap">
+    <h2>What we <span class="grad-text">track</span>.</h2>
+    <p class="lead">Coverage across the entire game — keeping values honest and conversations real.</p>
+    <div class="tracks">
+      <div class="track fade"><div class="track-num">469</div><div><div class="track-l">Brainrots</div><div class="track-s">every variant</div></div></div>
+      <div class="track fade"><div class="track-num">13</div><div><div class="track-l">Mutations</div><div class="track-s">incl. Phantom ×12</div></div></div>
+      <div class="track fade"><div class="track-num">57</div><div><div class="track-l">Traits</div><div class="track-s">income multipliers</div></div></div>
+      <div class="track fade"><div class="track-num">38</div><div><div class="track-l">Gears</div><div class="track-s">slaps, hammers, trees</div></div></div>
+      <div class="track fade"><div class="track-num">30</div><div><div class="track-l">Base Skins</div><div class="track-s">OG, seasonal, rare</div></div></div>
+      <div class="track fade"><div class="track-num">24/7</div><div><div class="track-l">Live Bot</div><div class="track-s">never offline</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── CTA ─────────── -->
+<section class="cta-band">
+  <div class="wrap">
+    <h2>Trade with <span class="grad-text">confidence</span>.</h2>
+    <p>Join 10,000+ Steal a Brainrot traders using the most accurate values in the game. Free, always.</p>
+    <a class="btn primary" href="DISCORD_INVITE_HERE" target="_blank" rel="noopener">🚀 Join the Discord</a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-in">
+    <div>
+      <div class="brand" style="margin-bottom:6px"><span class="brand-mark">SMV</span><span class="brand-name">SAB Market Value</span></div>
+      <div style="font-size:12px; color:var(--mut2)">Independent fan project — not affiliated with Roblox or Steal a Brainrot.</div>
+    </div>
+    <div class="foot-links">
+      <a href="https://ohhamzaa.github.io/sab-legal/terms.html">Terms</a>
+      <a href="https://ohhamzaa.github.io/sab-legal/privacy.html">Privacy</a>
+      <a href="DISCORD_INVITE_HERE" target="_blank" rel="noopener">Discord</a>
+      <span>© 2026 SAB Market Value</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Fade-in on scroll (no library, just IntersectionObserver)
+  const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold:.1 });
+  document.querySelectorAll('.fade').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
