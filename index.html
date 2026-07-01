@@ -112,8 +112,11 @@
   .widget-id{ color:var(--mut2); font-size:11.5px; }
   .widget-feat{ margin-left:auto; font-size:9.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
     background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.45); color:var(--gold2); border-radius:7px; padding:4px 8px; }
+  .widget-members{ font-size:16.5px; font-weight:800; color:var(--ink); margin-bottom:10px; }
+  .widget-members .dot{ margin-right:7px; }
   .widget-stats{ display:flex; flex-wrap:wrap; gap:8px 18px; margin-bottom:18px; font-size:13.5px; color:var(--mut); }
-  .widget-stats b{ color:var(--ink); font-weight:700; }
+  .widget-stats b{ font-weight:800; }
+  .widget-stats .v-on{ color:#10b981; } .widget-stats .v-off{ color:#9aa3b2; } .widget-stats .v-boost{ color:#f472b6; }
   .widget-stats .dot{ width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px; }
   .dot.on{ background:#10b981; box-shadow:0 0 6px #10b981; }
   .dot.off{ background:#6b7280; }
@@ -168,6 +171,8 @@
     box-shadow:0 2px 8px -2px var(--pc, var(--orange)); }
   .pid{ font-size:11.5px; color:var(--mut2); font-family:'JetBrains Mono',monospace; margin-top:9px; letter-spacing:.02em; }
   .pmeta{ font-size:12.5px; color:var(--mut); margin-top:4px; }
+  .pbadges{ display:flex; gap:5px; margin-top:9px; flex-wrap:wrap; min-height:0; }
+  .pbadges img{ width:21px; height:21px; display:block; }
   .pconns{ display:flex; gap:9px; margin-top:13px; flex-wrap:wrap; }
   .pconns a{ width:32px; height:32px; border-radius:9px; background:var(--bg2); border:1px solid var(--line); display:grid; place-items:center;
     transition:.16s; color:var(--bc, var(--mut)); font-size:14px; }
@@ -233,11 +238,11 @@
       </div>
       <span class="widget-feat">Featured</span>
     </div>
+    <div class="widget-members"><span class="dot on"></span><span id="wMembers">—</span> members</div>
     <div class="widget-stats">
-      <span><span class="dot on"></span><b id="wMembers">—</b> members</span>
-      <span><span class="dot on"></span><b id="wOnline">—</b> online</span>
-      <span><span class="dot off"></span><b id="wOffline">—</b> offline</span>
-      <span><span class="dot boost"></span><b id="wBoosts">—</b> boosts</span>
+      <span><span class="dot on"></span><b class="v-on" id="wOnline">—</b> online</span>
+      <span><span class="dot off"></span><b class="v-off" id="wOffline">—</b> offline</span>
+      <span><span class="dot boost"></span><b class="v-boost" id="wBoosts">—</b> boosts</span>
     </div>
     <div class="widget-actions">
       <button class="primary" id="wCopyInvite">🔗 Copy Invite</button>
@@ -376,29 +381,48 @@
     // { tier: 'Managers', sub: 'Approve values & keep the market honest', members: [ ...add here... ]},
     // { tier: 'Value Team', sub: 'Price checks, exist counts, daily updates', members: [ ...add here... ]},
   ];
+  // Fade-in on scroll (no library, just IntersectionObserver)
+  const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold:.1 });
   const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const sinceStr = t => { if (!t) return '—'; if (typeof t !== 'number') return t; const d = new Date(t); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
   function staffCard(m){
     const banner = m.video ? `<video autoplay muted loop playsinline src="${esc(m.video)}"></video>`
                  : m.banner ? `<img src="${esc(m.banner)}" alt="" loading="lazy">` : '';
+    const badges = (m.badges||[]).map(b => `<img src="${esc(b.icon)}" alt="${esc(b.name)}" title="${esc(b.name)}" loading="lazy" onerror="this.remove()">`).join('');
     const socials = (m.socials||[]).map(s =>
       `<a href="${esc(s.url)}" target="_blank" rel="noopener" title="${esc(s.title||'')}" style="--bc:${esc(s.color||'')}">${s.icon||'🔗'}</a>`).join('');
-    return `<div class="pcard fade" style="--pc:${esc(m.color||'#f59e0b')}">
+    return `<div class="pcard fade in" style="--pc:${esc(m.color||m.accent||'#f59e0b')}">
       <div class="pbanner">${banner}</div>
       <div class="pbody">
         <img class="pav" src="${esc(m.avatar||'')}" alt="${esc(m.name)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
         <div class="pname">${esc(m.name)}<span class="badge">${esc(m.role)}</span></div>
+        ${badges ? `<div class="pbadges">${badges}</div>` : ''}
         <div class="pid mono">ID: ${esc(m.id)}</div>
-        <div class="pmeta">Member since ${esc(m.since||'—')}</div>
+        <div class="pmeta">Member Since: ${esc(sinceStr(m.since))}</div>
         <div class="pconns">${socials}</div>
       </div>
     </div>`;
   }
-  document.getElementById('staffZone').innerHTML = STAFF.filter(t => t.members.length).map(t =>
-    `<div class="tier-title">${esc(t.tier)}</div><div class="tier-sub">${esc(t.sub||'')}</div>
-     <div class="staff-grid${t.members.length===1?' solo':''}">${t.members.map(staffCard).join('')}</div>`).join('');
+  function renderStaff(tiers){
+    const SUBS = { 'Owner':'Runs the whole operation', 'Managers':'Approve values & keep the market honest', 'Value Team':'Price checks, exist counts, daily updates' };
+    document.getElementById('staffZone').innerHTML = tiers.filter(t => t.members.length).map(t =>
+      `<div class="tier-title">${esc(t.title||t.tier)}</div><div class="tier-sub">${esc(t.sub||SUBS[t.title||t.tier]||'')}</div>
+       <div class="staff-grid${t.members.length===1?' solo':''}">${t.members.map(staffCard).join('')}</div>`).join('');
+    document.querySelectorAll('#staffZone .fade').forEach(el => io.observe(el));
+  }
+  // Static fallback first, then upgrade to LIVE Discord profile data from the
+  // bot (real avatars, animated banners, join dates, real profile badges).
+  renderStaff(STAFF.map(t => ({ title: t.tier, sub: t.sub, members: t.members })));
+  async function loadLiveStaff(){
+    if (!DASHBOARD_API) return;
+    try {
+      const r = await fetch(DASHBOARD_API + '/api/public/staff');
+      if (!r.ok) return;
+      const d = await r.json();
+      if (d && Array.isArray(d.tiers) && d.tiers.some(t => t.members && t.members.length)) renderStaff(d.tiers);
+    } catch (_) { /* bot unreachable — static fallback stays */ }
+  }
 
-  // Fade-in on scroll (no library, just IntersectionObserver)
-  const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('in')), { threshold:.1 });
   document.querySelectorAll('.fade').forEach(el => io.observe(el));
 
   // ── Live server widget ──────────────────────────────────────────────────────
@@ -410,8 +434,16 @@
   //      "Server Widget" enabled in Server Settings → Widget (no bot intent,
   //      no privileged review needed).
   const GUILD_ID = '1498000205419778111';
-  const DASHBOARD_API = ''; // TODO: e.g. 'https://dash.sabmarketvalue.com' once that domain is wired up
+  const DASHBOARD_API = 'https://mvb.sabdex.xyz'; // → dash.sabmarketvalue.com once DNS is wired
   const fmt = n => typeof n === 'number' ? n.toLocaleString() : '—';
+  // "last updated Xs ago" ticker
+  let _lastUpdate = 0;
+  setInterval(() => {
+    if (!_lastUpdate) return;
+    const s = Math.max(1, Math.round((Date.now() - _lastUpdate) / 1000));
+    const t = s < 60 ? s + 's' : Math.round(s / 60) + 'm';
+    document.getElementById('wNote').textContent = `🔄 Member counts update live · last updated ${t} ago`;
+  }, 1000);
 
   async function loadDashboardStats() {
     if (!DASHBOARD_API) return;
@@ -425,6 +457,7 @@
         if (statMembers) statMembers.textContent = d.memberCount >= 1000 ? (d.memberCount / 1000).toFixed(1) + 'K+' : fmt(d.memberCount);
       }
       if (typeof d.boostCount === 'number') document.getElementById('wBoosts').textContent = fmt(d.boostCount);
+      if (typeof d.memberCount === 'number' || typeof d.boostCount === 'number') _lastUpdate = Date.now();
     } catch (_) { /* dashboard not reachable yet — keep placeholders */ }
   }
   async function loadDiscordWidget() {
@@ -438,12 +471,15 @@
       const memberEl = document.getElementById('wMembers');
       const total = parseInt((memberEl.textContent || '').replace(/[^\d]/g, ''), 10);
       if (total) document.getElementById('wOffline').textContent = fmt(Math.max(total - online, 0));
+      _lastUpdate = Date.now();
     } catch (_) {
       document.getElementById('wNote').textContent = 'Enable Server Widget in Discord settings for live online count';
     }
   }
   loadDashboardStats();
   loadDiscordWidget();
+  loadLiveStaff();
+  setInterval(() => { loadDashboardStats(); loadDiscordWidget(); }, 60000);
 
   // ── Copy Invite / Copy ID ────────────────────────────────────────────────────
   const flashBtn = (btn, label) => { const old = btn.textContent; btn.textContent = label; setTimeout(() => { btn.textContent = old; }, 1500); };
