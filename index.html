@@ -173,6 +173,10 @@
   .pmeta{ font-size:12.5px; color:var(--mut); margin-top:4px; }
   .pbadges{ display:flex; gap:5px; margin-top:9px; flex-wrap:wrap; min-height:0; }
   .pbadges img{ width:21px; height:21px; display:block; }
+  /* Server-tag (clan) chip — the "SMV"/"RY" pill next to the name, like rysmm */
+  .ptag{ display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; letter-spacing:.02em;
+    padding:3px 8px 3px 6px; border-radius:7px; background:rgba(255,255,255,.06); border:1px solid var(--line2); color:var(--ink); }
+  .ptag img{ width:15px; height:15px; display:block; }
   .pconns{ display:flex; gap:9px; margin-top:13px; flex-wrap:wrap; }
   .pconns a{ width:32px; height:32px; border-radius:9px; background:var(--bg2); border:1px solid var(--line); display:grid; place-items:center;
     transition:.16s; color:var(--bc, var(--mut)); font-size:14px; }
@@ -389,13 +393,14 @@
     const banner = m.video ? `<video autoplay muted loop playsinline src="${esc(m.video)}"></video>`
                  : m.banner ? `<img src="${esc(m.banner)}" alt="" loading="lazy">` : '';
     const badges = (m.badges||[]).map(b => `<img src="${esc(b.icon)}" alt="${esc(b.name)}" title="${esc(b.name)}" loading="lazy" onerror="this.remove()">`).join('');
+    const tag = (m.serverTag && m.serverTag.tag) ? `<span class="ptag">${m.serverTag.badge ? `<img src="${esc(m.serverTag.badge)}" alt="" onerror="this.remove()">` : ''}${esc(m.serverTag.tag)}</span>` : '';
     const socials = (m.socials||[]).map(s =>
       `<a href="${esc(s.url)}" target="_blank" rel="noopener" title="${esc(s.title||'')}" style="--bc:${esc(s.color||'')}">${s.icon||'🔗'}</a>`).join('');
     return `<div class="pcard fade in" style="--pc:${esc(m.color||m.accent||'#f59e0b')}">
       <div class="pbanner">${banner}</div>
       <div class="pbody">
         <img class="pav" src="${esc(m.avatar||'')}" alt="${esc(m.name)}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
-        <div class="pname">${esc(m.name)}<span class="badge">${esc(m.role)}</span></div>
+        <div class="pname">${esc(m.name)}<span class="badge">${esc(m.role)}</span>${tag}</div>
         ${badges ? `<div class="pbadges">${badges}</div>` : ''}
         <div class="pid mono">ID: ${esc(m.id)}</div>
         <div class="pmeta">Member Since: ${esc(sinceStr(m.since))}</div>
